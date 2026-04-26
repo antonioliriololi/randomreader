@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorteo - Psicología Organizacional</title>
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f8f8f8;
+    --gray: #6b6b6b;
+    --light: #e2e2e2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    border-bottom: 2px solid var(--black);
+    padding: 16px 28px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .h-title { font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .h-sep   { color: var(--light); }
+  .h-sub   { font-size: 12px; color: var(--gray); }
+  .h-badge {
+    margin-left: auto;
+    background: var(--black); color: var(--white);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    padding: 4px 10px; text-transform: uppercase;
+  }
+
+  main { flex: 1; padding: 24px 28px; max-width: 820px; width: 100%; margin: 0 auto; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .sec-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--gray);
+    margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--light);
+  }
+
+  /* LISTA */
+  .controls-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .btn-sm {
+    font-family: Arial, sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    border: 1.5px solid var(--black); background: transparent; color: var(--black);
+    padding: 5px 14px; cursor: pointer; transition: all 0.12s;
+  }
+  .btn-sm:hover { background: var(--black); color: var(--white); }
+  .chk-count { font-size: 12px; color: var(--gray); margin-left: auto; }
+  .chk-count b { color: var(--black); }
+
+  .student-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 5px;
+    max-height: 390px; overflow-y: auto;
+    border: 1.5px solid var(--light); padding: 10px; margin-bottom: 20px;
+  }
+  .student-grid::-webkit-scrollbar { width: 3px; }
+  .student-grid::-webkit-scrollbar-thumb { background: var(--black); }
+
+  .stu-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border: 1.5px solid transparent;
+    cursor: pointer; transition: all 0.11s; user-select: none;
+  }
+  .stu-item:hover:not(.used) { border-color: var(--light); background: #f0f0f0; }
+  .stu-item.checked { border-color: var(--black); background: #fff; }
+  .stu-item.used { opacity: 0.26; cursor: default; }
+
+  .chk-box {
+    width: 15px; height: 15px; border: 2px solid var(--black); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 900;
+  }
+  .stu-item.checked .chk-box { background: var(--black); color: var(--white); }
+  .stu-n    { font-size: 10px; color: var(--gray); min-width: 20px; text-align: right; }
+  .stu-name { font-size: 12.5px; line-height: 1.25; }
+
+  .btn-iniciar {
+    font-family: Arial, sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--black); color: var(--white); border: none;
+    padding: 15px; cursor: pointer; display: block; width: 100%;
+    transition: opacity 0.12s;
+  }
+  .btn-iniciar:hover { opacity: 0.8; }
+  .btn-iniciar:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  /* PROGRESS */
+  .prog-wrap { margin-bottom: 22px; }
+  .prog-row  { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); margin-bottom: 5px; }
+  .prog-track { height: 2px; background: var(--light); }
+  .prog-fill  { height: 2px; background: var(--black); transition: width 0.35s ease; }
+
+  /* STUDENT BOX */
+  .stu-box {
+    border: 2px solid var(--black); padding: 22px 26px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .stu-bignum {
+    font-size: 40px; font-weight: 900; line-height: 1; color: var(--gray);
+    border-right: 2px solid var(--light); padding-right: 20px; min-width: 52px; text-align: center;
+  }
+  .stu-info { flex: 1; }
+  .stu-tag  { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; color: var(--gray); text-transform: uppercase; margin-bottom: 5px; }
+  .stu-bigname { font-size: 21px; font-weight: 700; line-height: 1.15; text-transform: uppercase; letter-spacing: 0.02em; }
+  .stu-pill {
+    background: var(--black); color: var(--white);
+    font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+    padding: 4px 10px; text-transform: uppercase; align-self: flex-start; flex-shrink: 0;
+  }
+
+  /* DIFICULTAD */
+  .diff-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gray); margin-bottom: 14px;
+  }
+  .diff-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;
+  }
+  .diff-btn {
+    font-family: Arial, sans-serif;
+    border: 2px solid var(--black); background: transparent;
+    cursor: pointer; padding: 22px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    transition: all 0.13s;
+  }
+  .diff-btn:hover { background: var(--black); color: var(--white); }
+  .diff-btn:hover .d-sub, .diff-btn:hover .d-note { color: #aaa; }
+  .d-name { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .d-pts  { font-size: 32px; font-weight: 900; line-height: 1; margin: 4px 0; }
+  .d-note { font-size: 9px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; }
+  .d-sub  { font-size: 10px; color: var(--gray); margin-top: 2px; }
+
+  /* PREGUNTA */
+  .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .q-stu-name { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+  .q-diff-tag { border: 1.5px solid var(--black); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 3px 9px; text-transform: uppercase; }
+  .q-score    { margin-left: auto; background: var(--black); color: var(--white); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 3px 10px; text-transform: uppercase; }
+
+  .q-box { border: 2px solid var(--black); padding: 26px 28px; margin-bottom: 22px; }
+  .q-meta {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--light);
+  }
+  .q-meta-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray); }
+  .q-cap-badge  { border: 1.5px solid var(--black); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 2px 8px; text-transform: uppercase; }
+  .q-text { font-size: 15px; line-height: 1.72; }
+
+  /* BOTONES */
+  .btn-sig {
+    font-family: Arial, sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: transparent; color: var(--black);
+    border: 2px solid var(--black); padding: 14px;
+    cursor: pointer; width: 100%; transition: all 0.12s; margin-bottom: 8px;
+  }
+  .btn-sig:hover { background: var(--black); color: var(--white); }
+  .btn-back {
+    font-family: Arial, sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: transparent; color: var(--gray);
+    border: 1.5px solid var(--light); padding: 9px;
+    cursor: pointer; width: 100%; transition: all 0.12s;
+  }
+  .btn-back:hover { border-color: var(--black); color: var(--black); }
+
+  /* FIN */
+  .fin-box { border: 2px solid var(--black); padding: 40px 28px; text-align: center; }
+  .fin-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .fin-sub   { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+
+  footer {
+    border-top: 1px solid var(--light); padding: 12px 28px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+  }
+  .fc { font-size: 11px; color: var(--gray); }
+  .fc b { color: var(--black); }
+  .fb { font-size: 10px; color: var(--gray); font-style: italic; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(7px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .anim { animation: fadeIn 0.27s ease forwards; }
+
+  @media (max-width: 560px) {
+    main { padding: 16px; }
+    header { padding: 12px 16px; }
+    .student-grid { grid-template-columns: 1fr; max-height: 300px; }
+    .diff-grid { grid-template-columns: 1fr; }
+    .stu-bigname { font-size: 16px; }
+    .stu-bignum  { font-size: 28px; }
+    .q-text { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-title">Psicología Organizacional</div>
+  <div class="h-sep">|</div>
+  <div class="h-sub">Sorteo de participación oral</div>
+  <div class="h-badge">Cap. 1 &amp; 2 · Tu voz, tu marca</div>
+</header>
+
+<main>
+
+  <!-- PANTALLA 1 · LISTA -->
+  <div id="s-lista" class="screen active">
+    <div class="sec-label">Seleccionar estudiantes para el sorteo</div>
+    <div class="controls-bar">
+      <button class="btn-sm" onclick="selectAll()">Marcar todos</button>
+      <button class="btn-sm" onclick="clearAll()">Limpiar</button>
+      <div class="chk-count">Seleccionados: <b id="chk-count">0</b></div>
+    </div>
+    <div class="student-grid" id="student-grid"></div>
+    <button class="btn-iniciar" id="btn-iniciar" onclick="iniciar()" disabled>
+      ▶ &nbsp; Iniciar sorteo
+    </button>
+  </div>
+
+  <!-- PANTALLA 2 · ELEGIR DIFICULTAD -->
+  <div id="s-elegir" class="screen">
+    <div class="prog-wrap">
+      <div class="prog-row"><span>Progreso</span><span id="prog-txt">0 / 0</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="stu-box" id="stu-box">
+      <div class="stu-bignum" id="stu-num">—</div>
+      <div class="stu-info">
+        <div class="stu-tag">Estudiante sorteado</div>
+        <div class="stu-bigname" id="stu-name">—</div>
+      </div>
+      <div class="stu-pill">✦ Activo</div>
+    </div>
+    <div class="diff-label">Elegir nivel de pregunta</div>
+    <div class="diff-grid">
+      <button class="diff-btn" onclick="mostrarPregunta('dificil')">
+        <div class="d-name">Difícil</div>
+        <div class="d-pts">20</div>
+        <div class="d-note">Máx. puntos</div>
+        <div class="d-sub">Análisis crítico</div>
+      </button>
+      <button class="diff-btn" onclick="mostrarPregunta('mediana')">
+        <div class="d-name">Mediana</div>
+        <div class="d-pts">14</div>
+        <div class="d-note">Máx. puntos</div>
+        <div class="d-sub">Aplicación</div>
+      </button>
+      <button class="diff-btn" onclick="mostrarPregunta('facil')">
+        <div class="d-name">Fácil</div>
+        <div class="d-pts">11</div>
+        <div class="d-note">Máx. puntos</div>
+        <div class="d-sub">Comprensión</div>
+      </button>
+    </div>
+    <button class="btn-back" onclick="irLista()">← Volver a la lista</button>
+  </div>
+
+  <!-- PANTALLA 3 · PREGUNTA -->
+  <div id="s-pregunta" class="screen">
+    <div class="prog-wrap">
+      <div class="prog-row"><span>Progreso</span><span id="prog-txt2">0 / 0</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill2" style="width:0%"></div></div>
+    </div>
+    <div class="q-header anim">
+      <div class="q-stu-name" id="q-stu-name">—</div>
+      <div class="q-diff-tag" id="q-diff-tag">—</div>
+      <div class="q-score" id="q-score">—</div>
+    </div>
+    <div class="q-box anim">
+      <div class="q-meta">
+        <div class="q-meta-label">Pregunta</div>
+        <div class="q-cap-badge" id="q-cap">—</div>
+      </div>
+      <div class="q-text" id="q-text">—</div>
+    </div>
+    <button class="btn-sig" onclick="siguiente()">Siguiente estudiante checkeado &nbsp; →</button>
+    <button class="btn-back" onclick="irLista()">← Volver a la lista</button>
+  </div>
+
+  <!-- PANTALLA 4 · FIN -->
+  <div id="s-fin" class="screen">
+    <div class="fin-box anim">
+      <div class="fin-title">✦ Ronda completada</div>
+      <div class="fin-sub">Todos los estudiantes seleccionados ya participaron.</div>
+      <button class="btn-iniciar" onclick="reiniciar()" style="max-width:260px;margin:0 auto;">
+        ↺ &nbsp; Nueva ronda
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="fc">Idea original de <b>Antonio Lirio</b></div>
+  <div class="fb">Pablo Cateriano · Tu voz, tu marca</div>
+</footer>
+
+<script>
+const STUDENTS = [
+  { id:  1, name: "Alberto Broncano Jenner Jesus" },
+  { id:  2, name: "Alva Huertas Mariaclaudia" },
+  { id:  3, name: "Alvarado Ortiz Kevin Thomas" },
+  { id:  4, name: "Arteaga Lopez Mayumy Lineth" },
+  { id:  5, name: "Briceño Yesquen Patricia Antonella" },
+  { id:  6, name: "Broncano Salazar Luis Sebastian" },
+  { id:  7, name: "Cochachin Mellisho Mariluz Marleni" },
+  { id:  8, name: "Colmenares Mallqui Edixon Janpier" },
+  { id:  9, name: "Colmenares Mallqui Jahir Alex" },
+  { id: 10, name: "De La Cruz Huaney Francoandre Leonardo" },
+  { id: 11, name: "De La Cruz Zambrano Eydina Edinayda" },
+  { id: 12, name: "Huarac Rojas Ashly Anheline" },
+  { id: 13, name: "Julca Calvo Luz Clarita" },
+  { id: 14, name: "La Puente Carpio Aisha Nicole" },
+  { id: 15, name: "Lliuya Mallqui Farit Josue" },
+  { id: 16, name: "Mautino Flores Valentina Belen" },
+  { id: 17, name: "Mendoza Ramirez Piero Alexander" },
+  { id: 18, name: "Milla Oro Jennifer Yazmin" },
+  { id: 19, name: "Molina Maguiña Jhordy Emanuel" },
+  { id: 20, name: "Morales Cabello Dámariz Victoria" },
+  { id: 21, name: "Moreno Melgarejo Marializ Rosaura" },
+  { id: 22, name: "Obregon Alvino Analy Beatriz" },
+  { id: 23, name: "Obregon Vergara Yoryeth Sayury" },
+  { id: 24, name: "Picon Melgarejo Gabriela Meily" },
+  { id: 25, name: "Rimac Jara Bleny Cleimer" },
+  { id: 26, name: "Rodriguez Herrera Amelia Yessica" },
+  { id: 27, name: "Romero Montes Daniela Sharon" },
+  { id: 28, name: "Romero Vega Jhosmar Britsin" },
+  { id: 29, name: "Samudio Espinoza Frayling Puhskin" },
+  { id: 30, name: "Silverio Sotelo Javier Edgar" },
+  { id: 31, name: "Soliz Martinez Gabriel Anthony" },
+  { id: 32, name: "Tamara Morales Franco Gelacio" },
+  { id: 33, name: "Zavala Carrillo Mayra Lina" },
+  { id: 34, name: "Antunez Patricio Anali Cristy" },
+  { id: 35, name: "Quiroz Olivera Keven Dante" },
+];
+
+const Q = {
+  dificil: [
+    // Cap 1
+    { cap:1, text: "Analiza comparativamente a James Burke (J&J, 1982) y Sean O'Keefe (NASA, 2003) como voceros en crisis. ¿Qué principios de la psicología organizacional explican el éxito de sus estrategias comunicacionales?" },
+    { cap:1, text: "Selecciona cuatro de los diez mandamientos del vocero y explica cómo cada uno se vincula con conceptos de psicología organizacional: liderazgo, motivación, inteligencia emocional o comportamiento grupal." },
+    { cap:1, text: "¿Cómo impacta la comunicación no verbal de un vocero en su percepción pública durante una crisis organizacional? Sustenta con tres ejemplos concretos del capítulo." },
+    { cap:1, text: "¿Qué mecanismos cognitivos y emocionales explican el valor de la reputación corporativa? ¿Cómo puede el vocero protegerla o deteriorarla con sus acciones?" },
+    { cap:1, text: "¿Qué competencias psicológicas y profesionales debe tener el asesor de Relaciones Públicas? ¿Qué dilemas éticos puede enfrentar en su relación con el vocero?" },
+    // Cap 2
+    { cap:2, text: "De los seis tipos de voceros, ¿cuál enfrenta los mayores desafíos comunicacionales desde la psicología organizacional? Fundamenta con ejemplos concretos del libro." },
+    { cap:2, text: "¿Qué factores psicológicos y organizacionales determinaron el fracaso de Fredy Hinojosa como portavoz presidencial? ¿Qué lecciones deja para la comunicación institucional?" },
+    { cap:2, text: "Analiza el impacto psicológico del incumplimiento de promesas públicas (caso Chávez) en la credibilidad del vocero político. ¿Qué mecanismos pueden restaurar la confianza institucional?" },
+    { cap:2, text: "¿Qué relación existe entre liderazgo y vocería según Cateriano? ¿Cómo afecta el tipo de autoestima del vocero a su desempeño organizacional?" },
+    { cap:2, text: "Compara los estilos de Elon Musk (alto perfil) y François-Henri Pinault (bajo perfil). ¿Cómo influye la cultura organizacional en la elección de la estrategia comunicacional?" },
+  ],
+  mediana: [
+    // Cap 1
+    { cap:1, text: "De los diez mandamientos del vocero, ¿cuáles tres son más importantes ante una crisis? Explica cada uno con ejemplos del capítulo." },
+    { cap:1, text: "¿Por qué Cateriano afirma que 'todo comunica'? Menciona cuatro elementos no verbales que el vocero debe controlar y explica su impacto psicológico en la audiencia." },
+    { cap:1, text: "¿Qué decisiones tomó James Burke durante la crisis del Tylenol? ¿Por qué fortalecieron la reputación de J&J a pesar del enorme costo económico?" },
+    { cap:1, text: "¿Qué características debe reunir un consultor de Relaciones Públicas para apoyar eficazmente al vocero? ¿Por qué es clave la relación de confianza entre ambos?" },
+    { cap:1, text: "¿En qué se diferencian el vocero del sector público, el privado y el 'personaje'? Da un ejemplo de cada tipo mencionado en el capítulo." },
+    // Cap 2
+    { cap:2, text: "¿Qué cambios ha generado la irrupción de las redes sociales en el rol del vocero empresarial? Ilustra con dos ejemplos concretos del libro." },
+    { cap:2, text: "¿Qué tienen en común Julio Velarde y Jorge Luis Borges como voceros atípicos? ¿Qué enseñanza práctica deja su caso para las organizaciones?" },
+    { cap:2, text: "¿Cuáles son los tres atributos del portavoz presidencial según Cateriano? Ilustra cada uno con un caso analizado en el capítulo." },
+    { cap:2, text: "¿Qué hizo efectiva la actuación de Francisco Pardo Mesones como vocero gremial en 1987? ¿Qué principios de comunicación organizacional ilustra su caso?" },
+    { cap:2, text: "¿Qué innovaciones introdujo Karoline Leavitt en la comunicación presidencial? ¿Qué tensiones enfrenta un portavoz entre la lealtad al mandatario y la credibilidad pública?" },
+  ],
+  facil: [
+    // Cap 1
+    { cap:1, text: "¿Qué es un vocero según Cateriano y cuáles son sus dos principales funciones dentro de una organización?" },
+    { cap:1, text: "Menciona y define tres de los diez mandamientos del vocero ideal descritos en el Capítulo 1." },
+    { cap:1, text: "¿Qué ocurrió con el Tylenol en 1982 y qué decisiones clave tomó James Burke como vocero de J&J?" },
+    { cap:1, text: "Define kinésica y menciona dos ejemplos de gestos políticos peruanos descritos en el capítulo." },
+    { cap:1, text: "¿En qué se diferencia el vocero del sector público del privado? Da un ejemplo concreto de cada tipo." },
+    // Cap 2
+    { cap:2, text: "¿Cuáles son los seis tipos de voceros del Capítulo 2? Menciónalos con un ejemplo de cada uno." },
+    { cap:2, text: "¿Qué es un vocero gremial y cuál fue el caso más famoso en el Perú según el libro?" },
+    { cap:2, text: "¿Quién fue Joaquín Navarro-Valls y qué condición puso para aceptar ser vocero del Papa Juan Pablo II?" },
+    { cap:2, text: "¿Qué diferencia a un vocero de alto perfil de uno de bajo perfil? Da un ejemplo de cada tipo del Capítulo 2." },
+    { cap:2, text: "¿Qué necesitaba realmente la presidenta Boluarte según Cateriano y qué lección deja el caso de Fredy Hinojosa?" },
+  ],
+};
+
+const DIFF_LABELS = { dificil: 'Difícil', mediana: 'Medianamente difícil', facil: 'Fácil' };
+const DIFF_SCORES = { dificil: 'Máx. 20 pts', mediana: 'Máx. 14 pts', facil: 'Máx. 11 pts' };
+
+let checked = new Set(), usedIds = new Set(), queue = [], totalSel = 0;
+let usedQ   = { dificil: new Set(), mediana: new Set(), facil: new Set() };
+let currentStu = null;
+
+function init() {
+  const grid = document.getElementById('student-grid');
+  grid.innerHTML = '';
+  STUDENTS.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'stu-item';
+    el.id = 'si-' + s.id;
+    el.onclick = () => toggle(s.id);
+    el.innerHTML =
+      `<div class="chk-box" id="cb-${s.id}"></div>` +
+      `<div class="stu-n">${s.id}</div>` +
+      `<div class="stu-name">${s.name}</div>`;
+    grid.appendChild(el);
+  });
+  updateCount();
+}
+
+function toggle(id) {
+  if (usedIds.has(id)) return;
+  if (checked.has(id)) {
+    checked.delete(id);
+    document.getElementById('si-'+id).classList.remove('checked');
+    document.getElementById('cb-'+id).textContent = '';
+  } else {
+    checked.add(id);
+    document.getElementById('si-'+id).classList.add('checked');
+    document.getElementById('cb-'+id).textContent = '✓';
+  }
+  updateCount();
+}
+
+function selectAll() {
+  STUDENTS.forEach(s => {
+    if (!usedIds.has(s.id)) {
+      checked.add(s.id);
+      document.getElementById('si-'+s.id).classList.add('checked');
+      document.getElementById('cb-'+s.id).textContent = '✓';
+    }
+  });
+  updateCount();
+}
+
+function clearAll() {
+  STUDENTS.forEach(s => {
+    if (!usedIds.has(s.id)) {
+      checked.delete(s.id);
+      document.getElementById('si-'+s.id).classList.remove('checked');
+      document.getElementById('cb-'+s.id).textContent = '';
+    }
+  });
+  updateCount();
+}
+
+function updateCount() {
+  document.getElementById('chk-count').textContent = checked.size;
+  document.getElementById('btn-iniciar').disabled = checked.size === 0;
+}
+
+function iniciar() {
+  if (checked.size === 0) return;
+  queue    = shuffle([...checked].filter(id => !usedIds.has(id)));
+  totalSel = queue.length;
+  sortear();
+}
+
+function sortear() {
+  if (queue.length === 0) { showScreen('s-fin'); return; }
+  const idx = Math.floor(Math.random() * queue.length);
+  const id  = queue.splice(idx, 1)[0];
+  currentStu = STUDENTS.find(s => s.id === id);
+  usedIds.add(id);
+  const el = document.getElementById('si-'+id);
+  if (el) { el.classList.add('used'); el.classList.remove('checked'); el.onclick = null; }
+  document.getElementById('stu-num').textContent  = String(id).padStart(2, '0');
+  document.getElementById('stu-name').textContent = currentStu.name;
+  updateProg('prog-txt', 'prog-fill');
+  animReset('stu-box');
+  showScreen('s-elegir');
+}
+
+function mostrarPregunta(diff) {
+  let avail = Q[diff].map((_,i) => i).filter(i => !usedQ[diff].has(i));
+  if (avail.length === 0) { usedQ[diff].clear(); avail = Q[diff].map((_,i) => i); }
+  const qi = avail[Math.floor(Math.random() * avail.length)];
+  usedQ[diff].add(qi);
+  const q = Q[diff][qi];
+  document.getElementById('q-stu-name').textContent = currentStu.name;
+  document.getElementById('q-diff-tag').textContent = DIFF_LABELS[diff];
+  document.getElementById('q-score').textContent    = DIFF_SCORES[diff];
+  document.getElementById('q-cap').textContent      = 'Capítulo ' + q.cap;
+  document.getElementById('q-text').textContent     = q.text;
+  updateProg('prog-txt2', 'prog-fill2');
+  animReset('q-stu-name');
+  showScreen('s-pregunta');
+}
+
+function siguiente() { sortear(); }
+function irLista()   { showScreen('s-lista'); updateCount(); }
+
+function reiniciar() {
+  usedIds.clear();
+  usedQ = { dificil: new Set(), mediana: new Set(), facil: new Set() };
+  queue = []; totalSel = 0; currentStu = null;
+  STUDENTS.forEach(s => {
+    const el = document.getElementById('si-'+s.id);
+    if (el && checked.has(s.id)) {
+      el.classList.remove('used'); el.classList.add('checked');
+      el.onclick = () => toggle(s.id);
+    }
+  });
+  ['prog-txt','prog-txt2'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent='0 / 0'; });
+  ['prog-fill','prog-fill2'].forEach(id => { const e=document.getElementById(id); if(e) e.style.width='0%'; });
+  showScreen('s-lista'); updateCount();
+}
+
+function updateProg(tId, fId) {
+  const done = totalSel - queue.length;
+  const pct  = totalSel > 0 ? Math.round((done / totalSel) * 100) : 0;
+  const t = document.getElementById(tId); if(t) t.textContent = done + ' / ' + totalSel;
+  const f = document.getElementById(fId); if(f) f.style.width = pct + '%';
+}
+
+function animReset(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function shuffle(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+init();
+</script>
+</body>
+</html>
