@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sorteo - Psicología Organizacional v2</title>
+<title>Sorteo - Psicología Organizacional</title>
 <style>
   :root {
     --black: #0a0a0a;
@@ -37,6 +37,13 @@
     font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
     padding: 4px 10px; text-transform: uppercase;
   }
+  .btn-fs {
+    font-size: 18px; background: transparent; border: 1.5px solid var(--black);
+    width: 32px; height: 32px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.12s; margin-left: 8px;
+  }
+  .btn-fs:hover { background: var(--black); color: var(--white); }
 
   main { flex: 1; padding: 24px 28px; max-width: 820px; width: 100%; margin: 0 auto; }
   .screen { display: none; }
@@ -48,7 +55,6 @@
     margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--light);
   }
 
-  /* LISTA */
   .controls-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
   .btn-sm {
     font-family: Arial, sans-serif; font-size: 11px; font-weight: 700;
@@ -98,13 +104,11 @@
   .btn-iniciar:hover { opacity: 0.8; }
   .btn-iniciar:disabled { opacity: 0.25; cursor: not-allowed; }
 
-  /* PROGRESS */
   .prog-wrap { margin-bottom: 22px; }
   .prog-row  { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); margin-bottom: 5px; }
   .prog-track { height: 2px; background: var(--light); }
   .prog-fill  { height: 2px; background: var(--black); transition: width 0.35s ease; }
 
-  /* STUDENT BOX */
   .stu-box {
     border: 2px solid var(--black); padding: 22px 26px; margin-bottom: 24px;
     display: flex; align-items: center; gap: 20px;
@@ -122,7 +126,6 @@
     padding: 4px 10px; text-transform: uppercase; align-self: flex-start; flex-shrink: 0;
   }
 
-  /* DIFICULTAD */
   .diff-label {
     font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--gray); margin-bottom: 14px;
@@ -144,7 +147,6 @@
   .d-note { font-size: 9px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; }
   .d-sub  { font-size: 10px; color: var(--gray); margin-top: 2px; }
 
-  /* PREGUNTA */
   .q-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
   .q-stu-name { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
   .q-diff-tag { border: 1.5px solid var(--black); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 3px 9px; text-transform: uppercase; }
@@ -159,7 +161,6 @@
   .q-cap-badge  { border: 1.5px solid var(--black); font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 2px 8px; text-transform: uppercase; }
   .q-text { font-size: 15px; line-height: 1.72; }
 
-  /* BOTONES */
   .btn-sig {
     font-family: Arial, sans-serif; font-size: 11px; font-weight: 700;
     letter-spacing: 0.14em; text-transform: uppercase;
@@ -177,7 +178,6 @@
   }
   .btn-back:hover { border-color: var(--black); color: var(--black); }
 
-  /* FIN */
   .fin-box { border: 2px solid var(--black); padding: 40px 28px; text-align: center; }
   .fin-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
   .fin-sub   { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
@@ -214,11 +214,11 @@
   <div class="h-sep">|</div>
   <div class="h-sub">Sorteo de participación oral</div>
   <div class="h-badge">Cap. 1, 2 &amp; 3 · Tu voz, tu marca</div>
+  <button class="btn-fs" id="btn-fs" onclick="toggleFS()" title="Pantalla completa">⛶</button>
 </header>
 
 <main>
 
-  <!-- PANTALLA 1 · LISTA -->
   <div id="s-lista" class="screen active">
     <div class="sec-label">Seleccionar estudiantes para el sorteo</div>
     <div class="controls-bar">
@@ -232,7 +232,6 @@
     </button>
   </div>
 
-  <!-- PANTALLA 2 · ELEGIR DIFICULTAD -->
   <div id="s-elegir" class="screen">
     <div class="prog-wrap">
       <div class="prog-row"><span>Progreso</span><span id="prog-txt">0 / 0</span></div>
@@ -270,7 +269,6 @@
     <button class="btn-back" onclick="irLista()">← Volver a la lista</button>
   </div>
 
-  <!-- PANTALLA 3 · PREGUNTA -->
   <div id="s-pregunta" class="screen">
     <div class="prog-wrap">
       <div class="prog-row"><span>Progreso</span><span id="prog-txt2">0 / 0</span></div>
@@ -292,7 +290,6 @@
     <button class="btn-back" onclick="irLista()">← Volver a la lista</button>
   </div>
 
-  <!-- PANTALLA 4 · FIN -->
   <div id="s-fin" class="screen">
     <div class="fin-box anim">
       <div class="fin-title">✦ Ronda completada</div>
@@ -351,19 +348,16 @@ const STUDENTS = [
 
 const Q = {
   dificil: [
-    // Cap 1
     { cap:1, text: "¿Por qué Cateriano dice que 'todo comunica'? Da dos ejemplos no verbales que puede usar un vocero." },
     { cap:1, text: "¿Qué hizo James Burke durante la crisis del Tylenol que lo convirtió en un vocero exitoso?" },
     { cap:1, text: "¿Cuál es la diferencia entre un vocero del sector público y uno del sector privado?" },
     { cap:1, text: "¿Por qué la reputación de una empresa es considerada un activo valioso según el Capítulo 1?" },
     { cap:1, text: "¿Qué papel cumple el consultor de Relaciones Públicas al apoyar al vocero?" },
-    // Cap 2
     { cap:2, text: "¿Por qué fracasó Fredy Hinojosa como portavoz presidencial según Cateriano?" },
     { cap:2, text: "¿Qué diferencia hay entre un vocero de alto perfil y uno de bajo perfil? Menciona un ejemplo de cada uno." },
     { cap:2, text: "¿Qué condición puso Joaquín Navarro-Valls para aceptar ser vocero del Papa Juan Pablo II?" },
     { cap:2, text: "¿Cómo afectó a Hugo Chávez el incumplimiento de sus promesas públicas en su credibilidad como vocero?" },
     { cap:2, text: "¿Qué innovación introdujo Karoline Leavitt en la comunicación presidencial de EE.UU.?" },
-    // Cap 3
     { cap:3, text: "¿Qué es el media training y por qué es indispensable para un vocero antes de enfrentar medios?" },
     { cap:3, text: "¿Cuál es la regla de los tres mensajes clave y cómo debe aplicarla el vocero en una entrevista?" },
     { cap:3, text: "¿Qué técnica recomienda Cateriano para redirigir una pregunta incómoda sin evadir al periodista?" },
@@ -371,19 +365,16 @@ const Q = {
     { cap:3, text: "¿Qué diferencia existe entre una rueda de prensa y una entrevista individual según el Capítulo 3?" },
   ],
   mediana: [
-    // Cap 1
     { cap:1, text: "Menciona dos de los diez mandamientos del vocero ideal y explica brevemente cada uno." },
     { cap:1, text: "¿Qué es la kinésica y por qué le importa al vocero según el Capítulo 1?" },
     { cap:1, text: "¿Qué es un vocero según Cateriano? Resume su función en dos oraciones." },
     { cap:1, text: "¿Por qué el caso Tylenol se convirtió en un modelo de manejo de crisis comunicacional?" },
     { cap:1, text: "¿Cómo define Cateriano la reputación corporativa y qué rol tiene el vocero en protegerla?" },
-    // Cap 2
     { cap:2, text: "¿Cuáles son los seis tipos de voceros descritos en el Capítulo 2? Nómbralos." },
     { cap:2, text: "¿Qué caso peruano ilustra el papel del vocero gremial en el Capítulo 2?" },
     { cap:2, text: "¿Qué tres atributos debe tener un portavoz presidencial según Cateriano?" },
     { cap:2, text: "¿Qué tienen en común Julio Velarde y Jorge Luis Borges como voceros atípicos?" },
     { cap:2, text: "¿Qué cambió en el rol del vocero con la llegada de las redes sociales según el libro?" },
-    // Cap 3
     { cap:3, text: "¿Qué debe hacer el vocero antes de una entrevista para prepararse correctamente?" },
     { cap:3, text: "¿Qué es el lenguaje corporal positivo y cómo lo describe Cateriano en el Capítulo 3?" },
     { cap:3, text: "Menciona dos errores comunes del vocero frente a cámaras según el Capítulo 3." },
@@ -391,19 +382,16 @@ const Q = {
     { cap:3, text: "¿Qué se entiende por 'mensaje ancla' y cuál es su utilidad para el vocero?" },
   ],
   facil: [
-    // Cap 1
     { cap:1, text: "¿Qué es un vocero según Pablo Cateriano?" },
     { cap:1, text: "Menciona dos mandamientos del vocero ideal descritos en el Capítulo 1." },
     { cap:1, text: "¿Qué empresa protagonizó la crisis del Tylenol en 1982?" },
     { cap:1, text: "¿Qué es la kinésica? Da un ejemplo." },
     { cap:1, text: "¿Cuál es la diferencia básica entre vocero público y vocero privado?" },
-    // Cap 2
     { cap:2, text: "¿Cuántos tipos de voceros menciona Cateriano en el Capítulo 2?" },
     { cap:2, text: "¿Qué es un vocero gremial? Da un ejemplo del libro." },
     { cap:2, text: "¿Quién fue Fredy Hinojosa y por qué aparece en el Capítulo 2?" },
     { cap:2, text: "¿Qué diferencia a un vocero de alto perfil de uno de bajo perfil?" },
     { cap:2, text: "Nombra un vocero político internacional mencionado en el Capítulo 2." },
-    // Cap 3
     { cap:3, text: "¿Qué es el media training según el Capítulo 3?" },
     { cap:3, text: "¿Por qué es importante preparar mensajes clave antes de una entrevista?" },
     { cap:3, text: "¿Qué debe evitar hacer un vocero con sus manos durante una conferencia de prensa?" },
@@ -418,6 +406,20 @@ const DIFF_SCORES = { dificil: 'Máx. 20 pts', mediana: 'Máx. 14 pts', facil: '
 let checked = new Set(), usedIds = new Set(), queue = [], totalSel = 0;
 let usedQ   = { dificil: new Set(), mediana: new Set(), facil: new Set() };
 let currentStu = null;
+
+function toggleFS() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+    document.getElementById('btn-fs').textContent = '✕';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('btn-fs').textContent = '⛶';
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement)
+    document.getElementById('btn-fs').textContent = '⛶';
+});
 
 function init() {
   const grid = document.getElementById('student-grid');
