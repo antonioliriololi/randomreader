@@ -210,4 +210,357 @@
 <body>
 
 <header>
-  <div class="h-title">Psicol
+  <div class="h-title">Psicología Organizacional</div>
+  <div class="h-sep">|</div>
+  <div class="h-sub">Sorteo de participación oral</div>
+  <div class="h-badge">Cap. 1, 2 &amp; 3 · Tu voz, tu marca</div>
+</header>
+
+<main>
+
+  <!-- PANTALLA 1 · LISTA -->
+  <div id="s-lista" class="screen active">
+    <div class="sec-label">Seleccionar estudiantes para el sorteo</div>
+    <div class="controls-bar">
+      <button class="btn-sm" onclick="selectAll()">Marcar todos</button>
+      <button class="btn-sm" onclick="clearAll()">Limpiar</button>
+      <div class="chk-count">Seleccionados: <b id="chk-count">0</b></div>
+    </div>
+    <div class="student-grid" id="student-grid"></div>
+    <button class="btn-iniciar" id="btn-iniciar" onclick="iniciar()" disabled>
+      ▶ &nbsp; Iniciar sorteo
+    </button>
+  </div>
+
+  <!-- PANTALLA 2 · ELEGIR DIFICULTAD -->
+  <div id="s-elegir" class="screen">
+    <div class="prog-wrap">
+      <div class="prog-row"><span>Progreso</span><span id="prog-txt">0 / 0</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="stu-box" id="stu-box">
+      <div class="stu-bignum" id="stu-num">—</div>
+      <div class="stu-info">
+        <div class="stu-tag">Estudiante sorteado</div>
+        <div class="stu-bigname" id="stu-name">—</div>
+      </div>
+      <div class="stu-pill">✦ Activo</div>
+    </div>
+    <div class="diff-label">Elegir nivel de pregunta</div>
+    <div class="diff-grid">
+      <button class="diff-btn" onclick="mostrarPregunta('dificil')">
+        <div class="d-name">Difícil</div>
+        <div class="d-pts">20</div>
+        <div class="d-note">Máx. puntos</div>
+        <div class="d-sub">Análisis crítico</div>
+      </button>
+      <button class="diff-btn" onclick="mostrarPregunta('mediana')">
+        <div class="d-name">Mediana</div>
+        <div class="d-pts">14</div>
+        <div class="d-note">Máx. puntos</div>
+        <div class="d-sub">Aplicación</div>
+      </button>
+      <button class="diff-btn" onclick="mostrarPregunta('facil')">
+        <div class="d-name">Fácil</div>
+        <div class="d-pts">11</div>
+        <div class="d-note">Máx. puntos</div>
+        <div class="d-sub">Comprensión</div>
+      </button>
+    </div>
+    <button class="btn-back" onclick="irLista()">← Volver a la lista</button>
+  </div>
+
+  <!-- PANTALLA 3 · PREGUNTA -->
+  <div id="s-pregunta" class="screen">
+    <div class="prog-wrap">
+      <div class="prog-row"><span>Progreso</span><span id="prog-txt2">0 / 0</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill2" style="width:0%"></div></div>
+    </div>
+    <div class="q-header anim">
+      <div class="q-stu-name" id="q-stu-name">—</div>
+      <div class="q-diff-tag" id="q-diff-tag">—</div>
+      <div class="q-score" id="q-score">—</div>
+    </div>
+    <div class="q-box anim">
+      <div class="q-meta">
+        <div class="q-meta-label">Pregunta</div>
+        <div class="q-cap-badge" id="q-cap">—</div>
+      </div>
+      <div class="q-text" id="q-text">—</div>
+    </div>
+    <button class="btn-sig" onclick="siguiente()">Siguiente estudiante checkeado &nbsp; →</button>
+    <button class="btn-back" onclick="irLista()">← Volver a la lista</button>
+  </div>
+
+  <!-- PANTALLA 4 · FIN -->
+  <div id="s-fin" class="screen">
+    <div class="fin-box anim">
+      <div class="fin-title">✦ Ronda completada</div>
+      <div class="fin-sub">Todos los estudiantes seleccionados ya participaron.</div>
+      <button class="btn-iniciar" onclick="reiniciar()" style="max-width:260px;margin:0 auto;">
+        ↺ &nbsp; Nueva ronda
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="fc">Idea original de <b>Antonio Lirio</b></div>
+  <div class="fb">Pablo Cateriano · Tu voz, tu marca</div>
+</footer>
+
+<script>
+const STUDENTS = [
+  { id:  1, name: "Alberto Broncano Jenner Jesus" },
+  { id:  2, name: "Alva Huertas Mariaclaudia" },
+  { id:  3, name: "Alvarado Ortiz Kevin Thomas" },
+  { id:  4, name: "Arteaga Lopez Mayumy Lineth" },
+  { id:  5, name: "Briceño Yesquen Patricia Antonella" },
+  { id:  6, name: "Broncano Salazar Luis Sebastian" },
+  { id:  7, name: "Cochachin Mellisho Mariluz Marleni" },
+  { id:  8, name: "Colmenares Mallqui Edixon Janpier" },
+  { id:  9, name: "Colmenares Mallqui Jahir Alex" },
+  { id: 10, name: "De La Cruz Huaney Francoandre Leonardo" },
+  { id: 11, name: "De La Cruz Zambrano Eydina Edinayda" },
+  { id: 12, name: "Huarac Rojas Ashly Anheline" },
+  { id: 13, name: "Julca Calvo Luz Clarita" },
+  { id: 14, name: "La Puente Carpio Aisha Nicole" },
+  { id: 15, name: "Lliuya Mallqui Farit Josue" },
+  { id: 16, name: "Mautino Flores Valentina Belen" },
+  { id: 17, name: "Mendoza Ramirez Piero Alexander" },
+  { id: 18, name: "Milla Oro Jennifer Yazmin" },
+  { id: 19, name: "Molina Maguiña Jhordy Emanuel" },
+  { id: 20, name: "Morales Cabello Dámariz Victoria" },
+  { id: 21, name: "Moreno Melgarejo Marializ Rosaura" },
+  { id: 22, name: "Obregon Alvino Analy Beatriz" },
+  { id: 23, name: "Obregon Vergara Yoryeth Sayury" },
+  { id: 24, name: "Picon Melgarejo Gabriela Meily" },
+  { id: 25, name: "Rimac Jara Bleny Cleimer" },
+  { id: 26, name: "Rodriguez Herrera Amelia Yessica" },
+  { id: 27, name: "Romero Montes Daniela Sharon" },
+  { id: 28, name: "Romero Vega Jhosmar Britsin" },
+  { id: 29, name: "Samudio Espinoza Frayling Puhskin" },
+  { id: 30, name: "Silverio Sotelo Javier Edgar" },
+  { id: 31, name: "Soliz Martinez Gabriel Anthony" },
+  { id: 32, name: "Tamara Morales Franco Gelacio" },
+  { id: 33, name: "Zavala Carrillo Mayra Lina" },
+  { id: 34, name: "Antunez Patricio Anali Cristy" },
+  { id: 35, name: "Quiroz Olivera Keven Dante" },
+];
+
+const Q = {
+  dificil: [
+    // Cap 1
+    { cap:1, text: "¿Por qué Cateriano dice que 'todo comunica'? Da dos ejemplos no verbales que puede usar un vocero." },
+    { cap:1, text: "¿Qué hizo James Burke durante la crisis del Tylenol que lo convirtió en un vocero exitoso?" },
+    { cap:1, text: "¿Cuál es la diferencia entre un vocero del sector público y uno del sector privado?" },
+    { cap:1, text: "¿Por qué la reputación de una empresa es considerada un activo valioso según el Capítulo 1?" },
+    { cap:1, text: "¿Qué papel cumple el consultor de Relaciones Públicas al apoyar al vocero?" },
+    // Cap 2
+    { cap:2, text: "¿Por qué fracasó Fredy Hinojosa como portavoz presidencial según Cateriano?" },
+    { cap:2, text: "¿Qué diferencia hay entre un vocero de alto perfil y uno de bajo perfil? Menciona un ejemplo de cada uno." },
+    { cap:2, text: "¿Qué condición puso Joaquín Navarro-Valls para aceptar ser vocero del Papa Juan Pablo II?" },
+    { cap:2, text: "¿Cómo afectó a Hugo Chávez el incumplimiento de sus promesas públicas en su credibilidad como vocero?" },
+    { cap:2, text: "¿Qué innovación introdujo Karoline Leavitt en la comunicación presidencial de EE.UU.?" },
+    // Cap 3
+    { cap:3, text: "¿Qué es el media training y por qué es indispensable para un vocero antes de enfrentar medios?" },
+    { cap:3, text: "¿Cuál es la regla de los tres mensajes clave y cómo debe aplicarla el vocero en una entrevista?" },
+    { cap:3, text: "¿Qué técnica recomienda Cateriano para redirigir una pregunta incómoda sin evadir al periodista?" },
+    { cap:3, text: "¿Por qué el silencio es una herramienta poderosa para el vocero durante una crisis mediática?" },
+    { cap:3, text: "¿Qué diferencia existe entre una rueda de prensa y una entrevista individual según el Capítulo 3?" },
+  ],
+  mediana: [
+    // Cap 1
+    { cap:1, text: "Menciona dos de los diez mandamientos del vocero ideal y explica brevemente cada uno." },
+    { cap:1, text: "¿Qué es la kinésica y por qué le importa al vocero según el Capítulo 1?" },
+    { cap:1, text: "¿Qué es un vocero según Cateriano? Resume su función en dos oraciones." },
+    { cap:1, text: "¿Por qué el caso Tylenol se convirtió en un modelo de manejo de crisis comunicacional?" },
+    { cap:1, text: "¿Cómo define Cateriano la reputación corporativa y qué rol tiene el vocero en protegerla?" },
+    // Cap 2
+    { cap:2, text: "¿Cuáles son los seis tipos de voceros descritos en el Capítulo 2? Nómbralos." },
+    { cap:2, text: "¿Qué caso peruano ilustra el papel del vocero gremial en el Capítulo 2?" },
+    { cap:2, text: "¿Qué tres atributos debe tener un portavoz presidencial según Cateriano?" },
+    { cap:2, text: "¿Qué tienen en común Julio Velarde y Jorge Luis Borges como voceros atípicos?" },
+    { cap:2, text: "¿Qué cambió en el rol del vocero con la llegada de las redes sociales según el libro?" },
+    // Cap 3
+    { cap:3, text: "¿Qué debe hacer el vocero antes de una entrevista para prepararse correctamente?" },
+    { cap:3, text: "¿Qué es el lenguaje corporal positivo y cómo lo describe Cateriano en el Capítulo 3?" },
+    { cap:3, text: "Menciona dos errores comunes del vocero frente a cámaras según el Capítulo 3." },
+    { cap:3, text: "¿Por qué Cateriano recomienda no improvisar en una rueda de prensa?" },
+    { cap:3, text: "¿Qué se entiende por 'mensaje ancla' y cuál es su utilidad para el vocero?" },
+  ],
+  facil: [
+    // Cap 1
+    { cap:1, text: "¿Qué es un vocero según Pablo Cateriano?" },
+    { cap:1, text: "Menciona dos mandamientos del vocero ideal descritos en el Capítulo 1." },
+    { cap:1, text: "¿Qué empresa protagonizó la crisis del Tylenol en 1982?" },
+    { cap:1, text: "¿Qué es la kinésica? Da un ejemplo." },
+    { cap:1, text: "¿Cuál es la diferencia básica entre vocero público y vocero privado?" },
+    // Cap 2
+    { cap:2, text: "¿Cuántos tipos de voceros menciona Cateriano en el Capítulo 2?" },
+    { cap:2, text: "¿Qué es un vocero gremial? Da un ejemplo del libro." },
+    { cap:2, text: "¿Quién fue Fredy Hinojosa y por qué aparece en el Capítulo 2?" },
+    { cap:2, text: "¿Qué diferencia a un vocero de alto perfil de uno de bajo perfil?" },
+    { cap:2, text: "Nombra un vocero político internacional mencionado en el Capítulo 2." },
+    // Cap 3
+    { cap:3, text: "¿Qué es el media training según el Capítulo 3?" },
+    { cap:3, text: "¿Por qué es importante preparar mensajes clave antes de una entrevista?" },
+    { cap:3, text: "¿Qué debe evitar hacer un vocero con sus manos durante una conferencia de prensa?" },
+    { cap:3, text: "¿Qué es una rueda de prensa según el Capítulo 3?" },
+    { cap:3, text: "¿Por qué el vocero debe mantener contacto visual con el periodista durante una entrevista?" },
+  ],
+};
+
+const DIFF_LABELS = { dificil: 'Difícil', mediana: 'Medianamente difícil', facil: 'Fácil' };
+const DIFF_SCORES = { dificil: 'Máx. 20 pts', mediana: 'Máx. 14 pts', facil: 'Máx. 11 pts' };
+
+let checked = new Set(), usedIds = new Set(), queue = [], totalSel = 0;
+let usedQ   = { dificil: new Set(), mediana: new Set(), facil: new Set() };
+let currentStu = null;
+
+function init() {
+  const grid = document.getElementById('student-grid');
+  grid.innerHTML = '';
+  STUDENTS.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'stu-item';
+    el.id = 'si-' + s.id;
+    el.onclick = () => toggle(s.id);
+    el.innerHTML =
+      `<div class="chk-box" id="cb-${s.id}"></div>` +
+      `<div class="stu-n">${s.id}</div>` +
+      `<div class="stu-name">${s.name}</div>`;
+    grid.appendChild(el);
+  });
+  updateCount();
+}
+
+function toggle(id) {
+  if (usedIds.has(id)) return;
+  if (checked.has(id)) {
+    checked.delete(id);
+    document.getElementById('si-'+id).classList.remove('checked');
+    document.getElementById('cb-'+id).textContent = '';
+  } else {
+    checked.add(id);
+    document.getElementById('si-'+id).classList.add('checked');
+    document.getElementById('cb-'+id).textContent = '✓';
+  }
+  updateCount();
+}
+
+function selectAll() {
+  STUDENTS.forEach(s => {
+    if (!usedIds.has(s.id)) {
+      checked.add(s.id);
+      document.getElementById('si-'+s.id).classList.add('checked');
+      document.getElementById('cb-'+s.id).textContent = '✓';
+    }
+  });
+  updateCount();
+}
+
+function clearAll() {
+  STUDENTS.forEach(s => {
+    if (!usedIds.has(s.id)) {
+      checked.delete(s.id);
+      document.getElementById('si-'+s.id).classList.remove('checked');
+      document.getElementById('cb-'+s.id).textContent = '';
+    }
+  });
+  updateCount();
+}
+
+function updateCount() {
+  document.getElementById('chk-count').textContent = checked.size;
+  document.getElementById('btn-iniciar').disabled = checked.size === 0;
+}
+
+function iniciar() {
+  if (checked.size === 0) return;
+  queue    = shuffle([...checked].filter(id => !usedIds.has(id)));
+  totalSel = queue.length;
+  sortear();
+}
+
+function sortear() {
+  if (queue.length === 0) { showScreen('s-fin'); return; }
+  const idx = Math.floor(Math.random() * queue.length);
+  const id  = queue.splice(idx, 1)[0];
+  currentStu = STUDENTS.find(s => s.id === id);
+  usedIds.add(id);
+  const el = document.getElementById('si-'+id);
+  if (el) { el.classList.add('used'); el.classList.remove('checked'); el.onclick = null; }
+  document.getElementById('stu-num').textContent  = String(id).padStart(2, '0');
+  document.getElementById('stu-name').textContent = currentStu.name;
+  updateProg('prog-txt', 'prog-fill');
+  animReset('stu-box');
+  showScreen('s-elegir');
+}
+
+function mostrarPregunta(diff) {
+  let avail = Q[diff].map((_,i) => i).filter(i => !usedQ[diff].has(i));
+  if (avail.length === 0) { usedQ[diff].clear(); avail = Q[diff].map((_,i) => i); }
+  const qi = avail[Math.floor(Math.random() * avail.length)];
+  usedQ[diff].add(qi);
+  const q = Q[diff][qi];
+  document.getElementById('q-stu-name').textContent = currentStu.name;
+  document.getElementById('q-diff-tag').textContent = DIFF_LABELS[diff];
+  document.getElementById('q-score').textContent    = DIFF_SCORES[diff];
+  document.getElementById('q-cap').textContent      = 'Capítulo ' + q.cap;
+  document.getElementById('q-text').textContent     = q.text;
+  updateProg('prog-txt2', 'prog-fill2');
+  animReset('q-stu-name');
+  showScreen('s-pregunta');
+}
+
+function siguiente() { sortear(); }
+function irLista()   { showScreen('s-lista'); updateCount(); }
+
+function reiniciar() {
+  usedIds.clear();
+  usedQ = { dificil: new Set(), mediana: new Set(), facil: new Set() };
+  queue = []; totalSel = 0; currentStu = null;
+  STUDENTS.forEach(s => {
+    const el = document.getElementById('si-'+s.id);
+    if (el && checked.has(s.id)) {
+      el.classList.remove('used'); el.classList.add('checked');
+      el.onclick = () => toggle(s.id);
+    }
+  });
+  ['prog-txt','prog-txt2'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent='0 / 0'; });
+  ['prog-fill','prog-fill2'].forEach(id => { const e=document.getElementById(id); if(e) e.style.width='0%'; });
+  showScreen('s-lista'); updateCount();
+}
+
+function updateProg(tId, fId) {
+  const done = totalSel - queue.length;
+  const pct  = totalSel > 0 ? Math.round((done / totalSel) * 100) : 0;
+  const t = document.getElementById(tId); if(t) t.textContent = done + ' / ' + totalSel;
+  const f = document.getElementById(fId); if(f) f.style.width = pct + '%';
+}
+
+function animReset(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('anim'); void el.offsetWidth; el.classList.add('anim');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function shuffle(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+init();
+</script>
+</body>
+</html>
